@@ -1,3 +1,5 @@
 <?php
-$con = mysqli_connect("localhost","root","","bd-proyecto","3307");
+function conectar() {
+    return mysqli_connect("localhost", "root", "", "bd_proyecto", "3306");
+}
 ?>
