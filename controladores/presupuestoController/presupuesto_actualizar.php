@@ -1,13 +1,14 @@
 <?php
 // Recibir desde Android
+$idPresupuesto = $_GET['idPresupuesto'];
 $montoP = $_GET['montoP'];
-$id_usuario = $_GET['id_usuario'];
+$idUsuario = $_GET['idUsuario'];
 $categoriaP = $_GET['categoriaP'];
 $fechaInicioP = $_GET['fechaInicioP'];
 $fechaFinP = $_GET['fechaFinP'];
 // Llamar a la función
 require_once("../../modelos/presupuesto/funcion_presupuesto.php");
-$rpta = RegistrarPresupuesto($montoP, $id_usuario, $categoriaP, $fechaInicioP, $fechaFinP);
+$rpta = ActualizarPresupuesto($idPresupuesto, $montoP, $idUsuario, $categoriaP, $fechaInicioP, $fechaFinP);
 // Responder a Android
 echo $rpta;
 ?>
