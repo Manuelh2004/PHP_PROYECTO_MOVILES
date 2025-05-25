@@ -1,23 +1,21 @@
 <?php 
-    function MostrarCategoriaConPresupuesto()
+ function MostrarTipoMovimiento()
     {
         //Establecer la conexión a la BD
         require_once("../../configuracion/conexion.php");
 
         // Obtener la conexión
         $con = conectar();  // <--- Aquí llamas a la función conectar()
-
+        
         //Query
-        $sql = "SELECT DISTINCT c.id_categoria as id, c.nom_categoria as nombre 
-        FROM Categoria c
-        INNER JOIN Presupuesto p ON c.id_categoria = p.id_categoria;
-        ";
+        $sql = "SELECT id_tipo_movimiento as id, nom_tipo_movimiento as nombre 
+        FROM tipo_movimiento";
 
         //ejecutar el query
-        $result = mysqli_query($con, $sql);
+        $result = mysqli_query($con,$sql);
 
         $datos = array();
-        while($row = mysqli_fetch_array($result, MYSQLI_ASSOC))
+        while($row = mysqli_fetch_array($result,MYSQLI_ASSOC))
         {
             $datos[] = $row;
         }
