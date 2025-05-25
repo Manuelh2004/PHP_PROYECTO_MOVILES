@@ -28,6 +28,8 @@ if (empty($nombres) || empty($apellidos) || empty($telefono) || empty($documento
     ]);
     exit;
 }
+$est_usuario = 1; 
+$num_usuario = $documento;
 
 // Como Firebase maneja la contraseña, aquí ya no la guardamos ni hasheamos
 // Puedes quitar la columna pas_usuario de la tabla o dejarla vacía si prefieres
@@ -36,9 +38,6 @@ if (empty($nombres) || empty($apellidos) || empty($telefono) || empty($documento
 $sql = "INSERT INTO usuario 
     (nom_usuario, ape_usuario, tel_usuario, fna_usuario, id_pais, id_genero, id_tipo_documento, em_usuario, est_usuario, num_usuario, uid_firebase) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-$est_usuario = 'activo';
-$num_usuario = '';
 
 $stmt = $con->prepare($sql);
 
