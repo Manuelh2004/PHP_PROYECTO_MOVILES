@@ -33,7 +33,7 @@ function RegistrarPresupuesto($montoP, $id_usuario, $categoriaP, $fechaInicioP, 
 
     return $msg;
 }
-function MostrarPresupuestos()
+function MostrarPresupuestos($id_Usuario)
 {
     //Establecer la conexión a la BD
     require_once("../../configuracion/conexion.php");
@@ -48,7 +48,7 @@ function MostrarPresupuestos()
             p.ffin_presupuesto,
             p.id_categoria,
             c.nom_categoria FROM presupuesto p
-            INNER JOIN categoria c ON p.id_categoria = c.id_categoria";
+            INNER JOIN categoria c ON p.id_categoria = c.id_categoria WHERE p.id_usuario = '$id_Usuario'";
 
     //ejecutar el query
     $result = mysqli_query($con,$sql);
