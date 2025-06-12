@@ -150,4 +150,43 @@ function EliminarPresupuestos($idPresupuesto){
 
     return $msg;
 }
+
+
+function ActualizarPresupuestoPorMovimiento($id_categoria, $id_usuario, $monto_actualizado){
+    // Incluir la conexión a la base de datos
+    require_once("../../configuracion/conexion.php");
+    $con = conectar();
+
+    // Primero, obtenemos el presupuesto actual de la categoría y usuario
+    $query = "SELECT * FROM presupuesto WHERE id_categoria = '$id_categoria' AND id_usuario = '$id_usuario'";
+    $result = mysqli_query($con, $query);
+
+    // Verificamos si se encontró un presupuesto
+    if(mysqli_num_rows($result) > 0) {
+        // Si encontramos el presupuesto, obtenemos los datos
+        $presupuesto = mysqli_fetch_assoc($result);
+
+        // Actualizamos el presupuesto actual (pres_act_presupuesto)
+        $nuevo_presupuesto = $presupuesto['pres_act_presupuesto'] + $monto_actualizado;
+
+        // Actualizamos el presupuesto en la base de datos
+        $updateQuery = "UPDATE presupuesto SET pres_act_presupuesto = '$nuevo_presupuesto' 
+                        WHERE id_categoria = '$id_categoria' AND id_usuario = '$id_usuario'";
+
+        // Ejecutamos la actualización
+        if (mysqli_query($con, $updateQuery)) {
+            // Si la actualización fue exitosa, respondemos con "success"
+            return "success";
+        } else {
+            // Si hubo un error al actualizar
+            return "error_al_actualizar";
+        }
+    } else {
+        // Si no se encontró presupuesto para la categoría y usuario, podemos crear uno o devolver un error
+        return "presupuesto_no_encontrado";
+    }
+
+    // Cerramos la conexión a la base de datos
+    mysqli_close($con);
+    }
 ?>
