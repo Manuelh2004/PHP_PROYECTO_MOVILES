@@ -1,5 +1,5 @@
 <?php
-function RegistrarPresupuesto($montoP, $id_usuario, $categoriaP, $fechaInicioP, $fechaFinP){
+function RegistrarPresupuesto($montoP, $montoActualP, $id_usuario, $categoriaP, $fechaInicioP, $fechaFinP){
     
     require_once("../../configuracion/conexion.php");
 
@@ -11,6 +11,7 @@ function RegistrarPresupuesto($montoP, $id_usuario, $categoriaP, $fechaInicioP, 
     '$id_usuario',
     '$categoriaP',
     '$montoP',
+    '$montoActualP ',
     '$fechaInicioP',
     '$fechaFinP',
     1
@@ -94,16 +95,17 @@ function ConsultarPresupuestos($idPresupuesto){
     return $datos;
 
 }
-function ActualizarPresupuesto($idPresupuesto, $montoP, $idUsuario, $categoriaP, $fechaInicioP, $fechaFinP){
+function ActualizarPresupuesto($idPresupuesto, $montoP, $montoActualp, $idUsuario, $categoriaP, $fechaInicioP, $fechaFinP){
     
     require_once("../../configuracion/conexion.php");
 
     $con = conectar();
 
-    $sql = "UPDATE presupuesto SET 
+    $sql = "UPDATE presupuesto SET
             pres_presupuesto = '$montoP',
             id_usuario = '$idUsuario',
             id_categoria = '$categoriaP',
+            pres_act_presupuesto = '$montoActualp',
             fini_presupuesto = '$fechaInicioP',
             ffin_presupuesto = '$fechaFinP'
         WHERE id_presupuesto = '$idPresupuesto'";
