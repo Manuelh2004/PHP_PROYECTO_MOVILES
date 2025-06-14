@@ -163,4 +163,55 @@ function ObtenerRol($uid_firebase){
     // Cerrar la conexión a la base de datos
     $con->close();
 }
+
+
+    function ListarUsuario()
+    {
+          // Establecer la conexión a la BD
+        require_once("../../configuracion/conexion.php");
+
+        // Obtener la conexión
+        $con = conectar();  // <--- Aquí llamas a la función conectar()
+
+        // Query con JOIN para filtrar por rol de usuario "ROL_ADMIN"
+        $sql = "
+            SELECT 
+                u.nom_usuario as nombre, 
+                u.ape_usuario as apellido, 
+                u.em_usuario as correo, 
+                u.est_usuario as estado
+            FROM 
+                usuario u
+            INNER JOIN 
+                tipo_usuario t ON u.id_tipo_usuario = t.id_tipo_usuario
+            WHERE 
+                t.nom_tipo_usuario = 'ROL_ADMIN'";
+
+        // Ejecutar el query
+        $result = mysqli_query($con, $sql);
+
+        $datos = array();
+        while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
+            // Concatenar nombre y apellido
+            $row['nombre'] = $row['nombre'] . ' ' . $row['apellido'];
+
+            // Convertir el estado de 1 a 'Activo' y 0 a 'Inactivo'
+            if ($row['estado'] == 1) {
+                $row['estado'] = 'Activo';
+            } else {
+                $row['estado'] = 'Inactivo';
+            }
+
+            // Eliminar el campo 'apellido' si no es necesario
+            unset($row['apellido']);
+
+            // Añadir el usuario con nombre completo y estado convertido a la lista de datos
+            $datos[] = $row;
+        }
+
+        // Cerrar la conexión a la BD
+        mysqli_close($con);
+
+        return $datos;
+    }
 ?>
