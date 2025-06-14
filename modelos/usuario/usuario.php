@@ -214,4 +214,50 @@ function ObtenerRol($uid_firebase){
 
         return $datos;
     }
+    function ObtenerNombre($id_usuario){
+    // Establecer la conexión a la base de datos
+    require_once("../../configuracion/conexion.php");
+
+    // Obtener la conexión
+    $con = conectar();  // Esta función debe devolver una conexión válida a la base de datos
+
+    // Consulta SQL para obtener el nombre y el apellido del usuario y concatenarlos
+    $sql = "SELECT CONCAT(nom_usuario, ' ', ape_usuario) AS nombre_completo FROM usuario WHERE id_usuario = ?";
+
+    // Preparar la consulta
+    if ($stmt = $con->prepare($sql)) {
+        // Vincular el parámetro de entrada
+        $stmt->bind_param("i", $id_usuario);  // "i" indica que es un entero
+
+        // Ejecutar la consulta
+        $stmt->execute();
+        $stmt->store_result();
+
+        // Verificar si se encontró el usuario
+        if ($stmt->num_rows > 0) {
+            // Asociar el resultado a una variable
+            $stmt->bind_result($nombre_completo);
+            $stmt->fetch();  // Obtener el valor de nombre_completo
+
+            // Retornar el nombre completo del usuario en formato JSON
+            $response = array("status" => "success", "nombre_usuario" => $nombre_completo);
+            echo json_encode($response);
+        } else {
+            // Si no se encontró el usuario, retornar un mensaje de error
+            $response = array("status" => "error", "message" => "Usuario no encontrado");
+            echo json_encode($response);
+        }
+
+        // Cerrar la declaración y la conexión
+        $stmt->close();
+    } else {
+        // Si hubo un error en la consulta, retornar un error
+        $response = array("status" => "error", "message" => "Error en la consulta SQL");
+        echo json_encode($response);
+    }
+
+    // Cerrar la conexión a la base de datos
+    $con->close();
+}
+
 ?>
