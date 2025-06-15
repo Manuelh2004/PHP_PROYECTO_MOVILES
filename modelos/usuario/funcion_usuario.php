@@ -7,7 +7,7 @@ function ValidarUsuario($id_usuario) {
 
     // Query
     $sql = "SELECT * FROM usuario u
-        INNER JOIN cargo c ON u.id_cargo = c.id_cargo 
+        INNER JOIN tipo_usuario c ON u.id_tipo_usuario = c.id_tipo_usuario 
         WHERE id_usuario = '$id_usuario'";
 
     // Ejecutar la consulta
