@@ -1,10 +1,9 @@
 <?php
 // Recibir desde Android
-$email = $_GET['em_usuario'];
-$password = $_GET['pas_usuario'];
+$id_usuario = $_GET['id_usuario'];
 // Llamar a la función
-require_once("funcion_usuario.php");
-$rpta = ValidarUsuario($email, $password);
+require_once("../../modelos/usuario/funcion_usuario.php");
+$rpta = ValidarUsuario($id_usuario);
 // Responder a Android
 echo json_encode($rpta, JSON_UNESCAPED_UNICODE);
 ?>
