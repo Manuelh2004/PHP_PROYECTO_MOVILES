@@ -1,10 +1,14 @@
 <?php
-function ValidarUsuario($email, $password) {
+function ValidarUsuario($id_usuario) {
     // Establecer conexión a la BD
-    require_once("conexion.php");
+    require_once("../../configuracion/conexion.php");
+
+    $con = conectar();
 
     // Query
-    $sql = "SELECT * FROM usuario WHERE em_usuario = '$email' AND pas_usuario = '$password'";
+    $sql = "SELECT * FROM usuario u
+        INNER JOIN tipo_usuario c ON u.id_tipo_usuario = c.id_tipo_usuario 
+        WHERE id_usuario = '$id_usuario'";
 
     // Ejecutar la consulta
     $result = mysqli_query($con, $sql);
