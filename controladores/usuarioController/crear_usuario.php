@@ -5,7 +5,7 @@ require_once("../../configuracion/conexion.php");
 
 $con = conectar();
 
-// Recibir con los nombres que envía Android
+// Recibir los datos enviados desde Android
 $nombres = $_POST['nombres'] ?? '';
 $apellidos = $_POST['apellidos'] ?? '';
 $telefono = $_POST['telefono'] ?? '';
@@ -16,63 +16,64 @@ $idTipoDoc = isset($_POST['idTipoDoc']) ? intval($_POST['idTipoDoc']) : 0;
 $email = $_POST['email'] ?? '';
 $uid_firebase = $_POST['uid_firebase'] ?? '';
 
-// Validación simple
-if (empty($nombres) || empty($apellidos) || empty($telefono) || empty($documento) || empty($fechaNa) 
-    || $idGenero === 0 || $idTipoDoc === 0 || empty($email) || empty($uid_firebase)) {
+// Registrar el email en el log antes de cualquier validación
+error_log('Email recibido antes de validar: ' . $email);
+
+// Validaciones adicionales para evitar errores con el email
+if ($email === '0' || empty($email)) {
     echo json_encode([
         'exito' => false,
-        'mensaje' => 'Faltan datos obligatorios'
+        'mensaje' => 'Error: El email no puede ser 0 ni estar vacío'
     ]);
     exit;
 }
 
-$est_usuario = 1; 
-$num_usuario = $documento;
-$id_tipo_usuario = 2; // Siempre será 2
-
-// SQL modificado para incluir id_tipo_usuario
-$sql = "INSERT INTO usuario 
-    (nom_usuario, ape_usuario, tel_usuario, fna_usuario, id_genero, id_tipo_documento, em_usuario, est_usuario, num_usuario, uid_firebase, id_tipo_usuario) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-$stmt = $con->prepare($sql);
-
-if (!$stmt) {
+// Verificar si el email tiene el formato correcto
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     echo json_encode([
         'exito' => false,
-        'mensaje' => 'Error en la preparación de la consulta: ' . $con->error
+        'mensaje' => 'El email proporcionado no es válido'
     ]);
     exit;
 }
 
-// Ajustar bind_param para incluir id_tipo_usuario
-$stmt->bind_param(
-    "ssssiiissss",  // Cambié a 11 parámetros para incluir id_tipo_usuario
-    $nombres,       // nom_usuario
-    $apellidos,     // ape_usuario
-    $telefono,      // tel_usuario
-    $fechaNa,       // fna_usuario
-    $idGenero,      // id_genero
-    $idTipoDoc,     // id_tipo_documento
-    $email,         // em_usuario
-    $est_usuario,   // est_usuario
-    $num_usuario,   // num_usuario
-    $uid_firebase,  // uid_firebase
-    $id_tipo_usuario // id_tipo_usuario, siempre será 2
-);
+// Verificar si el email ya existe en la base de datos
+$sql_check = "SELECT em_usuario FROM usuario WHERE em_usuario = ?";
+$stmt_check = $con->prepare($sql_check);
+$stmt_check->bind_param("s", $email);
+$stmt_check->execute();
+$stmt_check->store_result(); // Asegura que los datos están disponibles
 
-if ($stmt->execute()) {
+if ($stmt_check->num_rows > 0) {
+    echo json_encode([
+        'exito' => false,
+        'mensaje' => 'El email ya está registrado'
+    ]);
+    $stmt_check->close();
+    exit;
+}
+
+$stmt_check->close();
+
+// **Consulta directa en lugar de bind_param**
+$sql_debug = "INSERT INTO usuario (nom_usuario, ape_usuario, tel_usuario, fna_usuario, id_genero, id_tipo_documento, em_usuario, est_usuario, num_usuario, uid_firebase) 
+              VALUES ('$nombres', '$apellidos', '$telefono', '$fechaNa', '$idGenero', '$idTipoDoc', '$email', 1, '', '$uid_firebase')";
+              
+// Registrar el email antes de la inserción en la base de datos
+error_log('Consulta ejecutada: ' . $sql_debug);
+
+if ($con->query($sql_debug) === TRUE) {
     echo json_encode([
         'exito' => true,
-        'mensaje' => 'Usuario registrado con éxito'
+        'mensaje' => 'Usuario registrado con éxito sin bind_param()'
     ]);
 } else {
     echo json_encode([
         'exito' => false,
-        'mensaje' => 'Error al registrar usuario: ' . $stmt->error
+        'mensaje' => 'Error al registrar usuario: ' . $con->error
     ]);
 }
 
-$stmt->close();
+// Cerrar la conexión
 $con->close();
 ?>

@@ -1,39 +1,30 @@
 <?php
-function RegistrarPresupuesto($montoP, $montoActualP, $id_usuario, $categoriaP, $fechaInicioP, $fechaFinP){
-    
+function RegistrarPresupuesto($montoP, $id_usuario, $categoriaP, $fechaInicioP, $fechaFinP){
     require_once("../../configuracion/conexion.php");
 
     $con = conectar();
+    $presupuesto_actual = $montoP;
+    $estado_presupuesto = 1; // Asumimos que el estado por defecto es 1 (activo)
 
-    $sql = "INSERT INTO presupuesto() VALUES 
-    (
-    null,
-    '$id_usuario',
-    '$categoriaP',
-    '$montoP',
-    '$montoActualP ',
-    '$fechaInicioP',
-    '$fechaFinP',
-    1
-    )";
-    
-    //ejecutar el query
-    $result = mysqli_query($con,$sql);
+    // Corregir la consulta SQL
+    $sql = "INSERT INTO presupuesto (id_usuario, id_categoria, pres_presupuesto, pres_act_presupuesto, fini_presupuesto, ffin_presupuesto, est_presupuesto) 
+            VALUES ('$id_usuario', '$categoriaP', '$montoP', '$presupuesto_actual', '$fechaInicioP', '$fechaFinP', '$estado_presupuesto')";
 
-    if(!$result) //si es False
-    {
+    // Ejecutar el query
+    $result = mysqli_query($con, $sql);
+
+    if(!$result) {
         $msg = "Error en la ejecución de la consulta";
-    }
-    else
-    {
+    } else {
         $msg = "Registrado correctamente";
     }
 
-    //cerrar conexión a BD
+    // Cerrar conexión a BD
     mysqli_close($con);
 
     return $msg;
 }
+
 function MostrarPresupuestos($id_Usuario)
 {
     //Establecer la conexión a la BD
