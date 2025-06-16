@@ -39,7 +39,7 @@
             return "Error en la preparación de la consulta";
         }
 
-        mysqli_stmt_bind_param($stmt, "s", $nom_categoria);
+        mysqli_stmt_bind_param($stmt, "s", $nom_genero);
 
         $exec = mysqli_stmt_execute($stmt);
 

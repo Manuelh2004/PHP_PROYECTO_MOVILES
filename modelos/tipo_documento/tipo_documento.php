@@ -41,7 +41,7 @@
             return "Error en la preparación de la consulta";
         }
 
-        mysqli_stmt_bind_param($stmt, "s", $nom_categoria);
+        mysqli_stmt_bind_param($stmt, "s", $nom_tipo_documento);
 
         $exec = mysqli_stmt_execute($stmt);
 
