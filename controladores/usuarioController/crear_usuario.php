@@ -56,9 +56,10 @@ if ($stmt_check->num_rows > 0) {
 $stmt_check->close();
 
 // **Consulta directa en lugar de bind_param**
+// **Consulta directa con el valor de $documento**
 $sql_debug = "INSERT INTO usuario (nom_usuario, ape_usuario, tel_usuario, fna_usuario, id_genero, id_tipo_documento, em_usuario, est_usuario, num_usuario, uid_firebase) 
-              VALUES ('$nombres', '$apellidos', '$telefono', '$fechaNa', '$idGenero', '$idTipoDoc', '$email', 1, '', '$uid_firebase')";
-              
+              VALUES ('$nombres', '$apellidos', '$telefono', '$fechaNa', '$idGenero', '$idTipoDoc', '$email', 1, '$documento', '$uid_firebase')";
+
 // Registrar el email antes de la inserción en la base de datos
 error_log('Consulta ejecutada: ' . $sql_debug);
 
