@@ -27,7 +27,7 @@ function ObtenerUsuario($id_usuario) {
     $con = conectar();
 
     // Consulta SQL para obtener los datos del usuario por id_usuario
-    $query = "SELECT nom_usuario, ape_usuario, num_usuario, fna_usuario, tel_usuario 
+    $query = "SELECT nom_usuario, ape_usuario, num_usuario, fna_usuario, tel_usuario, em_usuario
               FROM usuario 
               WHERE id_usuario = '$id_usuario'";
 
