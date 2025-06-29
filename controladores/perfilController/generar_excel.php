@@ -130,14 +130,14 @@ try {
     $mail->isSMTP();
     $mail->Host = 'smtp.gmail.com';
     $mail->SMTPAuth = true;
-    $mail->Username = 'abraham2004hf@gmail.com';
-    $mail->Password = 'tsah usxn ixue ubov';
+    $mail->Username = 'sanfranciscoalbergue90@gmail.com';
+    $mail->Password = 'utav qvlt gefk vucg';
     $mail->SMTPSecure = 'tls';
     $mail->Port = 587;
 
-    $mail->setFrom('abraham2004hf@gmail.com', 'Tu App');
+    $mail->setFrom('sanfranciscoalbergue90@gmail.com', 'Pockit');
     $mail->addAddress($email, $nombre);
-    $mail->Subject = 'Tu Reporte de Presupuestos y Movimientos';
+    $mail->Subject = 'Reporte de Presupuestos';
     $mail->Body = "Hola $nombre,\n\nAdjuntamos el reporte de tus movimientos organizados por presupuestos activos.";
 
     $mail->addAttachment($filepath, $filename);
