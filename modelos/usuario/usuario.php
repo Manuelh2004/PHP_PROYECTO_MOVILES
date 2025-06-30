@@ -26,10 +26,20 @@ function ObtenerUsuario($id_usuario) {
     // Obtener la conexión
     $con = conectar();
 
-    // Consulta SQL para obtener los datos del usuario por id_usuario
-    $query = "SELECT nom_usuario, ape_usuario, num_usuario, fna_usuario, tel_usuario, em_usuario
-              FROM usuario 
-              WHERE id_usuario = '$id_usuario'";
+    // Consulta SQL para obtener los datos del usuario, incluyendo sexo y tipo de documento
+    $query = "SELECT 
+                u.nom_usuario, 
+                u.ape_usuario, 
+                u.num_usuario, 
+                u.fna_usuario, 
+                u.tel_usuario, 
+                u.em_usuario, 
+                g.nom_genero as genero,
+                t.nom_tipo_documento as tipo_documento
+              FROM usuario u
+              JOIN genero g ON u.id_genero = g.id_genero
+              JOIN tipo_documento t ON u.id_tipo_documento = t.id_tipo_documento
+              WHERE u.id_usuario = '$id_usuario'";
 
     // Ejecutar la consulta
     $result = mysqli_query($con, $query);
@@ -50,15 +60,15 @@ function ObtenerUsuario($id_usuario) {
     mysqli_close($con);
 }
 
-function ActualizarUsuario($id_usuario, $nombres, $apellidos, $documento, $fecha_nacimiento, $telefono) {
-  // Incluir el archivo de conexión
+function ActualizarUsuario($id_usuario, $nombres, $apellidos, $documento, $fecha_nacimiento, $telefono, $id_genero, $id_tipo_documento) {
+    // Incluir el archivo de conexión
     require_once("../../configuracion/conexion.php");
 
     // Obtener la conexión
     $con = conectar();
 
     // Validar los datos recibidos
-    if (empty($id_usuario) || empty($nombres) || empty($apellidos) || empty($documento) || empty($fecha_nacimiento) || empty($telefono)) {
+    if (empty($id_usuario) || empty($nombres) || empty($apellidos) || empty($documento) || empty($fecha_nacimiento) || empty($telefono) || empty($id_genero) || empty($id_tipo_documento)) {
         return "Todos los campos son requeridos";
     }
 
@@ -68,13 +78,15 @@ function ActualizarUsuario($id_usuario, $nombres, $apellidos, $documento, $fecha
                 ape_usuario = ?, 
                 num_usuario = ?, 
                 fna_usuario = ?, 
-                tel_usuario = ? 
+                tel_usuario = ?, 
+                id_genero = ?, 
+                id_tipo_documento = ? 
             WHERE id_usuario = ?";
 
     // Preparar la sentencia
     if ($stmt = $con->prepare($sql)) {
         // Vincular los parámetros
-        $stmt->bind_param("sssssi", $nombres, $apellidos, $documento, $fecha_nacimiento, $telefono, $id_usuario);
+        $stmt->bind_param("ssssssii", $nombres, $apellidos, $documento, $fecha_nacimiento, $telefono, $id_genero, $id_tipo_documento, $id_usuario);
 
         // Ejecutar la consulta
         if ($stmt->execute()) {
@@ -164,6 +176,51 @@ function ObtenerRol($uid_firebase){
     $con->close();
 }
 
+function ObtenerDatosPerfilYListas($id_usuario) {
+    require_once("../../configuracion/conexion.php");
+    $con = conectar();
+
+    // Consulta para obtener los datos del perfil
+    $query = "SELECT nom_usuario, ape_usuario, num_usuario, fna_usuario, tel_usuario, em_usuario, id_genero, id_tipo_documento
+              FROM usuario 
+              WHERE id_usuario = '$id_usuario'";
+
+    // Ejecutar la consulta
+    $result = mysqli_query($con, $query);
+
+    if (mysqli_num_rows($result) > 0) {
+        // Obtener los datos del perfil
+        $row = mysqli_fetch_assoc($result);
+
+        // Consultar los géneros disponibles
+        $query_generos = "SELECT id_genero, nom_genero FROM genero WHERE 1";
+        $result_generos = mysqli_query($con, $query_generos);
+        $generos = array();
+        while ($row_genero = mysqli_fetch_assoc($result_generos)) {
+            $generos[] = $row_genero;
+        }
+
+        // Consultar los tipos de documentos disponibles
+        $query_documentos = "SELECT id_tipo_documento, nom_tipo_documento FROM tipo_documento WHERE 1";
+        $result_documentos = mysqli_query($con, $query_documentos);
+        $documentos = array();
+        while ($row_documento = mysqli_fetch_assoc($result_documentos)) {
+            $documentos[] = $row_documento;
+        }
+
+        // Devolver los datos como JSON
+        $response = array(
+            "perfil" => $row,
+            "generos" => $generos,
+            "documentos" => $documentos
+        );
+        echo json_encode($response);
+    } else {
+        echo json_encode(array("error" => "Usuario no encontrado"));
+    }
+
+    mysqli_close($con);
+}
 
     function ListarUsuario()
     {

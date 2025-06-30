@@ -34,58 +34,65 @@
 }
 
     function MostrarMovimiento(){
-        // Establecer la conexión a la BD
+    // Establecer la conexión a la BD
     require_once("../../configuracion/conexion.php");
-        $con = conectar();
+    $con = conectar();
 
-        // Obtener las fechas de inicio y fin del GET
-        $fecha_inicio = $_GET['fecha_inicio'] ?? null;
-        $fecha_fin = $_GET['fecha_fin'] ?? null;
-        $id_usuario = $_GET['id_usuario'] ?? null;
+    // Obtener los parámetros del GET
+    $fecha_inicio = $_GET['fecha_inicio'] ?? null;
+    $fecha_fin = $_GET['fecha_fin'] ?? null;
+    $id_usuario = $_GET['id_usuario'] ?? null;
+    $id_categoria = $_GET['id_categoria'] ?? null;  // Añadido para obtener el filtro de categoría
 
-        if (!$id_usuario) {
-            echo json_encode(["error" => "Falta id_usuario"]);
-            exit;
-        }
-
-        // Consulta base
-        $sql = "
-            SELECT 
-                m.id_movimiento,
-                CONCAT(u.nom_usuario, ' ', u.ape_usuario) AS usuario,
-                tm.nom_tipo_movimiento,
-                c.nom_categoria,
-                m.mon_movimiento,
-                m.fech_movimiento,
-                m.des_movimiento,
-                m.est_movimiento
-            FROM movimiento m
-            LEFT JOIN usuario u ON m.id_usuario = u.id_usuario
-            LEFT JOIN tipo_movimiento tm ON m.id_tipo_movimiento = tm.id_tipo_movimiento
-            LEFT JOIN categoria c ON m.id_categoria = c.id_categoria
-            WHERE m.id_usuario = $id_usuario
-        ";
-
-        // Filtrar por fechas si están disponibles
-        if ($fecha_inicio && $fecha_fin) {
-            $sql .= " AND m.fech_movimiento BETWEEN '$fecha_inicio' AND '$fecha_fin'";
-        }
-
-        $sql .= " ORDER BY m.id_movimiento DESC";
-
-        // Ejecutar el query
-        $result = mysqli_query($con, $sql);
-
-        $datos = array();
-        while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
-            $datos[] = $row;
-        }
-
-        // Cerrar conexión a BD
-        mysqli_close($con);
-
-        return $datos;
+    // Validar que el id_usuario esté presente
+    if (!$id_usuario) {
+        echo json_encode(["error" => "Falta id_usuario"]);
+        exit;
     }
+
+    // Consulta base
+    $sql = "
+        SELECT 
+            m.id_movimiento,
+            CONCAT(u.nom_usuario, ' ', u.ape_usuario) AS usuario,
+            tm.nom_tipo_movimiento,
+            c.nom_categoria,
+            m.mon_movimiento,
+            m.fech_movimiento,
+            m.des_movimiento,
+            m.est_movimiento
+        FROM movimiento m
+        LEFT JOIN usuario u ON m.id_usuario = u.id_usuario
+        LEFT JOIN tipo_movimiento tm ON m.id_tipo_movimiento = tm.id_tipo_movimiento
+        LEFT JOIN categoria c ON m.id_categoria = c.id_categoria
+        WHERE m.id_usuario = $id_usuario
+    ";
+
+    // Filtrar por categoría si está disponible
+    if ($id_categoria) {
+        $sql .= " AND m.id_categoria = $id_categoria";
+    }
+
+    // Filtrar por fechas si están disponibles
+    if ($fecha_inicio && $fecha_fin) {
+        $sql .= " AND m.fech_movimiento BETWEEN '$fecha_inicio' AND '$fecha_fin'";
+    }
+
+    $sql .= " ORDER BY m.id_movimiento DESC";
+
+    // Ejecutar el query
+    $result = mysqli_query($con, $sql);
+
+    $datos = array();
+    while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
+        $datos[] = $row;
+    }
+
+    // Cerrar conexión a BD
+    mysqli_close($con);
+
+    return $datos;
+}
     //function ActualizarMovimiento(){}
 
     function ActualizarMovimiento($idMovimiento, $idTipoMovimiento, $idUsuario, $idCategoria, $monMovimiento, $fechMovimiento, $desMovimiento, $estMovimiento) {
