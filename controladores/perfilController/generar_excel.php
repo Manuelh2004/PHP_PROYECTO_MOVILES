@@ -130,12 +130,12 @@ try {
     $mail->isSMTP();
     $mail->Host = 'smtp.gmail.com';
     $mail->SMTPAuth = true;
-    $mail->Username = 'sanfranciscoalbergue90@gmail.com';
-    $mail->Password = 'utav qvlt gefk vucg';
+    $mail->Username = 'alexxanderay@gmail.com';
+    $mail->Password = 'qglz akop gbjo nsom';
     $mail->SMTPSecure = 'tls';
     $mail->Port = 587;
 
-    $mail->setFrom('sanfranciscoalbergue90@gmail.com', 'Pockit');
+    $mail->setFrom('alexxanderay@gmail.com', 'Pockit');
     $mail->addAddress($email, $nombre);
     $mail->Subject = 'Reporte de Presupuestos';
     $mail->Body = "Hola $nombre,\n\nAdjuntamos el reporte de tus movimientos organizados por presupuestos activos.";
