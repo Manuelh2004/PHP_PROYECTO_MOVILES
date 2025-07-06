@@ -5,52 +5,71 @@ include_once("../../configuracion/conexion.php");
 $conn = conectar();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Recibimos los datos del usuario
-    $nombres = $_POST['nombres'] ?? null;
-    $apellidos = $_POST['apellidos'] ?? null;
-    $email = $_POST['email'] ?? null;
-    $uid_firebase = $_POST['uid_firebase'] ?? null; // El UID de Firebase debe ser enviado por el cliente
+    $nombre = $_POST['nom_usuario'] ?? '';
+    $email = $_POST['em_usuario'] ?? '';
+    $uid_firebase = $_POST['uid_firebase'] ?? '';
 
-    // Verificar si los datos esenciales están presentes
-    if (!$email || !$nombres || !$apellidos || !$uid_firebase) {
-        echo json_encode(['success' => false, 'message' => 'Los campos obligatorios (nombres, apellidos, email y uid_firebase) son requeridos.']);
+    if (empty($nombre) || empty($email) || empty($uid_firebase)) {
+        echo json_encode(['success' => false, 'message' => 'Faltan datos']);
         exit;
     }
 
-    // Verificar si el usuario ya existe en la base de datos
-    $query = $conn->prepare("SELECT id_usuario FROM usuario WHERE em_usuario = ?");
-    $query->bind_param("s", $email);
-    $query->execute();
-    $query->store_result();
+    // Verificar si ya existe por uid_firebase
+    $queryCheck = "SELECT id_usuario FROM usuario WHERE uid_firebase = ?";
+    $stmtCheck = $conn->prepare($queryCheck);
+    $stmtCheck->bind_param("s", $uid_firebase);
+    $stmtCheck->execute();
+    $result = $stmtCheck->get_result();
 
-    if ($query->num_rows > 0) {
-        echo json_encode(['success' => false, 'message' => 'El usuario ya existe']);
-        $query->close();
-        $conn->close();
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        echo json_encode(['success' => true, 'id_usuario' => $row['id_usuario']]);
         exit;
     }
 
-    // Asignar valores por defecto para los campos que no se reciben (por ejemplo, est_usuario, num_usuario, id_pais, id_genero, id_tipo_documento)
-    $id_pais = 1;  // Puedes cambiar esto según tus necesidades o recibirlo como parámetro
-    $id_genero = 1;  // Similar para el género
-    $id_tipo_doc = 1;  // Y el tipo de documento
-    $num_usuario = ''; // Si no tienes un valor para num_usuario, lo dejamos vacío
-    $est_usuario = 1; // Activo
+    // Valores por defecto
+    $apellido = "Google";
+    $fecha_nac = "2000-01-01";
+    $telefono = "000000000";
+    $num_documento = "00000000";
+    $contrasena = "google_user";
+    $fecha_registro = date('Y-m-d H:i:s');
+    $estado = 1;
 
-    // Insertar nuevo usuario en la base de datos
-    $query = $conn->prepare("INSERT INTO usuario (nom_usuario, ape_usuario, em_usuario, uid_firebase, id_pais, id_genero, id_tipo_documento, num_usuario, est_usuario) 
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $query->bind_param("ssssiiiss", $nombres, $apellidos, $email, $uid_firebase, $id_pais, $id_genero, $id_tipo_doc, $num_usuario, $est_usuario);
+    // Asignaciones de FK: deberías asegurarte que estos valores existen
+    $id_genero = 1; // Por ejemplo: 1 = "No especificado"
+    $id_tipo_documento = 1; // Por ejemplo: 1 = "DNI"
+    $id_tipo_usuario = 2; // Por ejemplo: 2 = "Usuario estándar"
 
-    if ($query->execute()) {
-        echo json_encode(['success' => true, 'message' => 'Usuario creado exitosamente']);
+    $stmt = $conn->prepare("INSERT INTO usuario 
+        (id_genero, id_tipo_documento, id_tipo_usuario, nom_usuario, ape_usuario, fna_usuario, tel_usuario, num_usuario, em_usuario, pas_usuario, fre_usuario, uid_firebase, est_usuario) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+    $stmt->bind_param("iiisssssssssi", 
+        $id_genero, 
+        $id_tipo_documento, 
+        $id_tipo_usuario, 
+        $nombre, 
+        $apellido, 
+        $fecha_nac, 
+        $telefono, 
+        $num_documento, 
+        $email, 
+        $contrasena, 
+        $fecha_registro, 
+        $uid_firebase, 
+        $estado
+    );
+
+    if ($stmt->execute()) {
+        $nuevoId = $stmt->insert_id;
+        echo json_encode(['success' => true, 'id_usuario' => $nuevoId]);
     } else {
-        echo json_encode(['success' => false, 'message' => 'Error al crear usuario: ' . $query->error]);
+        echo json_encode(['success' => false, 'message' => 'Error al registrar usuario']);
     }
 
-    $query->close();
+    $stmt->close();
     $conn->close();
 } else {
     echo json_encode(['success' => false, 'message' => 'Método no permitido']);
 }
-?>
