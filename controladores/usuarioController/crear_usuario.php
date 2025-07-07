@@ -66,7 +66,7 @@ error_log('Consulta ejecutada: ' . $sql_debug);
 if ($con->query($sql_debug) === TRUE) {
     echo json_encode([
         'exito' => true,
-        'mensaje' => 'Usuario registrado con éxito sin bind_param()'
+        'mensaje' => 'Usuario registrado con éxito'
     ]);
 } else {
     echo json_encode([
