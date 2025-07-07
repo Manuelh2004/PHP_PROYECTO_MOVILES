@@ -160,10 +160,10 @@ function ActualizarPresupuestoPorMovimiento($id_categoria, $id_usuario, $monto_a
         $presupuesto = mysqli_fetch_assoc($result);
 
         // Actualizamos el presupuesto actual (pres_act_presupuesto)
-        $nuevo_presupuesto = $presupuesto['pres_act_presupuesto'] + $monto_actualizado;
+         $nuevo_presupuesto = $presupuesto['pres_presupuesto'] + $monto_actualizado;
 
         // Actualizamos el presupuesto en la base de datos
-        $updateQuery = "UPDATE presupuesto SET pres_act_presupuesto = '$nuevo_presupuesto' 
+        $updateQuery = "UPDATE presupuesto SET pres_presupuesto = '$nuevo_presupuesto' 
                         WHERE id_categoria = '$id_categoria' AND id_usuario = '$id_usuario'";
 
         // Ejecutamos la actualización

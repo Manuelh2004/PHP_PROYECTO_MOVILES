@@ -40,7 +40,6 @@
 
     // Obtener los parámetros del GET
     $fecha_inicio = $_GET['fecha_inicio'] ?? null;
-    $fecha_fin = $_GET['fecha_fin'] ?? null;
     $id_usuario = $_GET['id_usuario'] ?? null;
     $id_categoria = $_GET['id_categoria'] ?? null;  // Añadido para obtener el filtro de categoría
 
@@ -60,7 +59,9 @@
             m.mon_movimiento,
             m.fech_movimiento,
             m.des_movimiento,
-            m.est_movimiento
+            m.est_movimiento,
+            m.id_categoria,
+            m.id_tipo_movimiento
         FROM movimiento m
         LEFT JOIN usuario u ON m.id_usuario = u.id_usuario
         LEFT JOIN tipo_movimiento tm ON m.id_tipo_movimiento = tm.id_tipo_movimiento
@@ -73,9 +74,9 @@
         $sql .= " AND m.id_categoria = $id_categoria";
     }
 
-    // Filtrar por fechas si están disponibles
-    if ($fecha_inicio && $fecha_fin) {
-        $sql .= " AND m.fech_movimiento BETWEEN '$fecha_inicio' AND '$fecha_fin'";
+
+   if (!empty($fecha_inicio)) {
+        $sql .= " AND m.fech_movimiento BETWEEN '$fecha_inicio 00:00:00' AND '$fecha_inicio 23:59:59'";
     }
 
     $sql .= " ORDER BY m.id_movimiento DESC";
