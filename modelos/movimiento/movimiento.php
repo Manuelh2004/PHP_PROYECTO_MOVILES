@@ -96,41 +96,64 @@
 }
     //function ActualizarMovimiento(){}
 
-    function ActualizarMovimiento($idMovimiento, $idTipoMovimiento, $idUsuario, $idCategoria, $monMovimiento, $fechMovimiento, $desMovimiento, $estMovimiento) {
+   function ActualizarMovimiento($idMovimiento, $idTipoMovimientoNuevo, $idUsuario, $idCategoria, $monMovimientoNuevo, $fechMovimiento, $desMovimiento, $estMovimiento) {
     require_once("../../configuracion/conexion.php");
-
-    // Conectar a la base de datos
     $con = conectar();
 
-    // Preparar la consulta SQL para actualizar el movimiento usando sentencias preparadas
-    $sql = "UPDATE movimiento SET 
-               id_tipo_movimiento = ?, 
-               id_categoria = ?, 
-               mon_movimiento = ?, 
-               fech_movimiento = ?, 
-               des_movimiento = ?, 
-               est_movimiento = ? 
-           WHERE id_movimiento = ? AND id_usuario = ?";
+    // 1. Obtener el valor anterior del movimiento
+    $sqlAnterior = "SELECT mon_movimiento, id_tipo_movimiento FROM movimiento WHERE id_movimiento = ?";
+    $stmtAnterior = mysqli_prepare($con, $sqlAnterior);
+    mysqli_stmt_bind_param($stmtAnterior, "i", $idMovimiento);
+    mysqli_stmt_execute($stmtAnterior);
+    $resultAnterior = mysqli_stmt_get_result($stmtAnterior);
 
-    // Preparar la sentencia
-    $stmt = mysqli_prepare($con, $sql);
-    if (!$stmt) {
-        return "Error en la preparación de la consulta: " . mysqli_error($con);
+    if (!$resultAnterior || mysqli_num_rows($resultAnterior) === 0) {
+        mysqli_stmt_close($stmtAnterior);
+        mysqli_close($con);
+        return "Error: Movimiento no encontrado.";
     }
 
-    // Vincular los parámetros de la consulta
-    mysqli_stmt_bind_param($stmt, "iiisssii", $idTipoMovimiento, $idCategoria, $monMovimiento, $fechMovimiento, $desMovimiento, $estMovimiento, $idMovimiento, $idUsuario);
+    $row = mysqli_fetch_assoc($resultAnterior);
+    $monMovimientoAnterior = (float) $row['mon_movimiento'];
+    $idTipoMovimientoAnterior = (int) $row['id_tipo_movimiento'];
+    mysqli_stmt_close($stmtAnterior);
 
-    // Ejecutar la sentencia
-    $exec = mysqli_stmt_execute($stmt);
-    if (!$exec) {
-        return "Error al actualizar el movimiento: " . mysqli_stmt_error($stmt);
-    } else {
-        return "success"; // Indicar que la actualización fue exitosa
-    }
+    // 2. Calcular efecto del movimiento anterior y nuevo
+    $efectoAnterior = ($idTipoMovimientoAnterior == 1) ? $monMovimientoAnterior : -$monMovimientoAnterior;
+    $efectoNuevo    = ($idTipoMovimientoNuevo == 1) ? $monMovimientoNuevo : -$monMovimientoNuevo;
 
-    // Cerrar la conexión
+    // 3. Calcular diferencia a aplicar al presupuesto
+    $ajuste = $efectoNuevo - $efectoAnterior;
+
+    // 4. Actualizar presupuesto (pres_presupuesto)
+    $sqlPresupuesto = "UPDATE presupuesto 
+                       SET pres_presupuesto = pres_presupuesto + ?
+                       WHERE id_usuario = ? AND id_categoria = ? AND est_presupuesto = 1";
+    $stmtPres = mysqli_prepare($con, $sqlPresupuesto);
+    mysqli_stmt_bind_param($stmtPres, "dii", $ajuste, $idUsuario, $idCategoria);
+    mysqli_stmt_execute($stmtPres);
+    mysqli_stmt_close($stmtPres);
+
+    // 5. Actualizar movimiento
+    $sqlUpdate = "UPDATE movimiento SET 
+                    id_tipo_movimiento = ?, 
+                    id_categoria = ?, 
+                    mon_movimiento = ?, 
+                    fech_movimiento = ?, 
+                    des_movimiento = ?, 
+                    est_movimiento = ? 
+                  WHERE id_movimiento = ? AND id_usuario = ?";
+    $stmt = mysqli_prepare($con, $sqlUpdate);
+    mysqli_stmt_bind_param($stmt, "iiisssii", 
+        $idTipoMovimientoNuevo, $idCategoria, $monMovimientoNuevo, 
+        $fechMovimiento, $desMovimiento, $estMovimiento, 
+        $idMovimiento, $idUsuario);
+    $success = mysqli_stmt_execute($stmt);
+
     mysqli_stmt_close($stmt);
     mysqli_close($con);
+
+    return $success ? "success" : "Error al actualizar el movimiento";
 }
+
 ?>
