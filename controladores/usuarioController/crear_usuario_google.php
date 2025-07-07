@@ -28,10 +28,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Valores por defecto
-    $apellido = "Google";
-    $fecha_nac = "2000-01-01";
-    $telefono = "000000000";
-    $num_documento = "00000000";
+    $apellido = "";
+    $fecha_nac = "";
+    $telefono = "";
+    $num_documento = "";
     $contrasena = "google_user";
     $fecha_registro = date('Y-m-d H:i:s');
     $estado = 1;

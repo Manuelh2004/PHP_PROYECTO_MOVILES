@@ -1,6 +1,5 @@
 <?php 
-    function ListarComentario()
-{
+function ListarComentario() {
     require_once("../../configuracion/conexion.php");
     $con = conectar();
 
@@ -34,12 +33,16 @@
             $datos[] = $row;
         }
     } else {
-        echo "Error en la consulta: " . mysqli_error($con);
+        echo json_encode(["error" => "Error en la consulta: " . mysqli_error($con)]);
+        mysqli_close($con);
+        return;
     }
 
     mysqli_close($con);
-    return $datos;
+    // Retornar como JSON
+    echo json_encode($datos);
 }
+
 
  function RegistrarComentario($id_usuario, $men_comentario, $est_comentario)
     {
