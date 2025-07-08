@@ -1,5 +1,5 @@
 <?php
 function conectar() {
-    return mysqli_connect("localhost", "root","", "bd_nueva", "3306");
+    return mysqli_connect("localhost", "root","", "bd_proyecto_moviles", "3306");
 }
 ?>
