@@ -26,7 +26,7 @@
     }
 
     function RegistrarGenero($nom_genero){
-        require_once("C:/wamp64/www/proyecto_moviles/configuracion/conexion.php");
+        require_once("../../../configuracion/conexion.php");
         $con = conectar();
 
         // Para evitar SQL Injection, se recomienda preparar la sentencia.
