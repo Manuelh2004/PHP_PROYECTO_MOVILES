@@ -24,7 +24,6 @@
         mysqli_close($con);
 
         return $datos;
-
     }
 
     function RegistrarTipoDocumento($nom_tipo_documento){

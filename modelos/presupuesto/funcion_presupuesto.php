@@ -40,7 +40,8 @@ function MostrarPresupuestos($id_Usuario)
             p.ffin_presupuesto,
             p.id_categoria,
             c.nom_categoria FROM presupuesto p
-            INNER JOIN categoria c ON p.id_categoria = c.id_categoria WHERE p.id_usuario = '$id_Usuario'";
+            INNER JOIN categoria c ON p.id_categoria = c.id_categoria 
+            WHERE p.id_usuario = '$id_Usuario' AND p.est_presupuesto = 1";
 
     //ejecutar el query
     $result = mysqli_query($con,$sql);

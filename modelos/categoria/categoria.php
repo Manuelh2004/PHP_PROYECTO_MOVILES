@@ -11,7 +11,7 @@
         $sql = "SELECT DISTINCT c.id_categoria AS id, c.nom_categoria AS nombre
                 FROM categoria c
                 INNER JOIN presupuesto p ON c.id_categoria = p.id_categoria
-                WHERE p.id_usuario = ?";
+            WHERE p.id_usuario = ? AND p.est_presupuesto = 1";
 
         // Preparar la sentencia
         if ($stmt = mysqli_prepare($con, $sql)) {
