@@ -23,7 +23,7 @@ error_log('Email recibido antes de validar: ' . $email);
 if ($email === '0' || empty($email)) {
     echo json_encode([
         'exito' => false,
-        'mensaje' => 'Error: El email no puede ser 0 ni estar vacío'
+        'mensaje' => 'Error: El email no puede ser 0 ni estar vacío'    
     ]);
     exit;
 }
@@ -57,24 +57,29 @@ $stmt_check->close();
 
 // **Consulta directa en lugar de bind_param**
 // **Consulta directa con el valor de $documento**
-$sql_debug = "INSERT INTO usuario (nom_usuario, ape_usuario, tel_usuario, fna_usuario, id_genero, id_tipo_documento, em_usuario, est_usuario, num_usuario, uid_firebase) 
-              VALUES ('$nombres', '$apellidos', '$telefono', '$fechaNa', '$idGenero', '$idTipoDoc', '$email', 1, '$documento', '$uid_firebase')";
+$sql_insert = "INSERT INTO usuario 
+    (nom_usuario, ape_usuario, tel_usuario, fna_usuario, id_genero, id_tipo_documento, em_usuario, est_usuario, num_usuario, uid_firebase) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?)";
+$stmt_insert = $con->prepare($sql_insert);
+$stmt_insert->bind_param("ssssissss", $nombres, $apellidos, $telefono, $fechaNa, $idGenero, $idTipoDoc, $email, $documento, $uid_firebase);
 
-// Registrar el email antes de la inserción en la base de datos
-error_log('Consulta ejecutada: ' . $sql_debug);
 
-if ($con->query($sql_debug) === TRUE) {
+if ($stmt_insert->execute()) {
+    $id_usuario = $con->insert_id; // Obtener el ID del usuario recién insertado
+
     echo json_encode([
         'exito' => true,
-        'mensaje' => 'Usuario registrado con éxito'
+        'mensaje' => 'Usuario registrado con éxito',
+        'id_usuario' => $id_usuario
     ]);
 } else {
     echo json_encode([
         'exito' => false,
-        'mensaje' => 'Error al registrar usuario: ' . $con->error
+        'mensaje' => 'Error al registrar usuario: ' . $stmt_insert->error
     ]);
 }
 
+$stmt_insert->close();
 // Cerrar la conexión
 $con->close();
 ?>
