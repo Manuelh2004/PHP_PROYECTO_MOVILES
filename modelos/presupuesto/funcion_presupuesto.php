@@ -151,32 +151,35 @@ function ActualizarPresupuestoPorMovimiento($id_categoria, $id_usuario, $monto_a
     require_once("../../configuracion/conexion.php");
     $con = conectar();
 
-    // Primero, obtenemos el presupuesto actual de la categoría y usuario
-    $query = "SELECT * FROM presupuesto WHERE id_categoria = '$id_categoria' AND id_usuario = '$id_usuario'";
+    // Primero, obtenemos el presupuesto actual de la categoría y usuario que esté activo
+    $query = "SELECT * FROM presupuesto 
+              WHERE id_categoria = '$id_categoria' 
+              AND id_usuario = '$id_usuario' 
+              AND est_presupuesto = 1"; 
     $result = mysqli_query($con, $query);
 
-    // Verificamos si se encontró un presupuesto
+    // Verificamos si se encontró un presupuesto activo
     if(mysqli_num_rows($result) > 0) {
         // Si encontramos el presupuesto, obtenemos los datos
         $presupuesto = mysqli_fetch_assoc($result);
 
         // Actualizamos el presupuesto actual (pres_act_presupuesto)
-         $nuevo_presupuesto = $presupuesto['pres_presupuesto'] + $monto_actualizado;
+        $nuevo_presupuesto = $presupuesto['pres_presupuesto'] + $monto_actualizado;
 
-        // Actualizamos el presupuesto en la base de datos
+        // Actualizamos el presupuesto activo en la base de datos
         $updateQuery = "UPDATE presupuesto SET pres_presupuesto = '$nuevo_presupuesto' 
-                        WHERE id_categoria = '$id_categoria' AND id_usuario = '$id_usuario'";
+                        WHERE id_categoria = '$id_categoria' 
+                        AND id_usuario = '$id_usuario' 
+                        AND est_presupuesto = 1";  
 
         // Ejecutamos la actualización
         if (mysqli_query($con, $updateQuery)) {
-            // Si la actualización fue exitosa, respondemos con "success"
             return "success";
         } else {
-            // Si hubo un error al actualizar
             return "error_al_actualizar";
         }
     } else {
-        // Si no se encontró presupuesto para la categoría y usuario, podemos crear uno o devolver un error
+        // No se encontró presupuesto activo para esa categoría y usuario
         return "presupuesto_no_encontrado";
     }
 

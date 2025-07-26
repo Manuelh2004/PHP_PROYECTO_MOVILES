@@ -34,7 +34,9 @@ $operacion = ($id_tipo_movimiento == 1) ? -$monto : $monto;
 $sql_update = "
     UPDATE presupuesto 
     SET pres_presupuesto = pres_presupuesto + $operacion
-    WHERE id_usuario = $id_usuario AND id_categoria = $id_categoria
+    WHERE id_usuario = $id_usuario 
+      AND id_categoria = $id_categoria 
+      AND est_presupuesto = 1
 ";
 
 if (!mysqli_query($con, $sql_update)) {

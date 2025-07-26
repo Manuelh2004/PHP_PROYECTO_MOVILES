@@ -58,8 +58,8 @@ $stmt_check->close();
 // **Consulta directa en lugar de bind_param**
 // **Consulta directa con el valor de $documento**
 $sql_insert = "INSERT INTO usuario 
-    (nom_usuario, ape_usuario, tel_usuario, fna_usuario, id_genero, id_tipo_documento, em_usuario, est_usuario, num_usuario, uid_firebase) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?)";
+    (nom_usuario, ape_usuario, tel_usuario, fna_usuario, id_genero, id_tipo_documento, em_usuario, est_usuario, num_usuario, uid_firebase, id_tipo_usuario) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, 1)";
 $stmt_insert = $con->prepare($sql_insert);
 $stmt_insert->bind_param("ssssissss", $nombres, $apellidos, $telefono, $fechaNa, $idGenero, $idTipoDoc, $email, $documento, $uid_firebase);
 
